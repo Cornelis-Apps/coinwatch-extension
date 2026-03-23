@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "CoinWatch",
   "version": "1.0.0",
-  "description": "Cross-chain crypto watchlist — track any token on ETH, SOL, Base, BSC, ARB & 20+ chains with live prices, alerts, and one-click add from chart sites.",
+  "description": "Track any token, any chain. Live prices, alerts, and one-click add from DexScreener, GMGN, and more.",
   "permissions": [
     "storage",
     "alarms",
@@ -17,7 +17,7 @@
     "https://api.binance.com/*",
     "https://cdn.dexscreener.com/*",
     "https://assets.coincap.io/*",
-    "https://api.coincap.io/*",
+    "https://api.coingecko.com/*",
     "https://api.dexpaprika.com/*"
   ],
   "background": {

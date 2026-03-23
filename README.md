@@ -39,7 +39,8 @@ No accounts. No dashboards. No clutter. Just signal.
 - **DexScreener** — primary source for real-time price, liquidity, and pair data across all chains (batch endpoint)
 - **DexPaprika** — fallback for when DexScreener is unavailable (free, no API key, commercial use)
 - **Binance** — 24h ticker data for major pairs
-- **CoinCap** — market cap and token icons for Binance pairs
+- **CoinGecko** — market cap data for Binance pairs (single batched call)
+- **CoinCap** — token icons for Binance pairs
 - **Jupiter** — Solana token metadata, holder counts, and audit flags
 
 ---

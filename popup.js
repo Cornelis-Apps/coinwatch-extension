@@ -686,12 +686,23 @@ async function _refreshAllInner() {
 
   // Split items into batchable DEX (have address) vs individual (Binance / no address)
   const dexBatchable = state.items.filter(i => i.type === 'dex' && i.address);
+  const binanceItems = state.items.filter(i => i.type === 'binance');
   const individual = state.items.filter(i => i.type === 'binance' || (i.type === 'dex' && !i.address));
+
+  // Pre-fetch all Binance market caps in one CoinGecko batch call
+  let geckoMcaps = {};
+  if (binanceItems.length) {
+    const ids = [...new Set(binanceItems.map(i => coingeckoId(binanceBaseSymbol(resolveBinancePair(i.binanceSymbol || i.query)))))];
+    try {
+      const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids.join(',')}&vs_currencies=usd&include_market_cap=true`);
+      if (res.ok) geckoMcaps = await res.json();
+    } catch {}
+  }
 
   // Batch fetch DEX items via DexScreener /tokens/ + fetch individual items in parallel
   const [batchPairs, ...individualResults] = await Promise.all([
     dexBatchable.length ? fetchDexScreenerBatch(dexBatchable.map(i => i.address)) : Promise.resolve([]),
-    ...individual.map(loadItemData)
+    ...individual.map(item => loadItemData(item, geckoMcaps))
   ]);
 
   // Match batch results back to items
@@ -826,9 +837,9 @@ async function fetchDexPaprikaFallback(items) {
   return results;
 }
 
-async function loadItemData(item) {
+async function loadItemData(item, geckoMcaps = {}) {
   try {
-    if (item.type === 'binance') return { item, ...(await fetchBinanceItem(item)) };
+    if (item.type === 'binance') return { item, ...(await fetchBinanceItem(item, geckoMcaps)) };
     return { item, ...(await fetchDexItem(item)) };
   } catch (error) {
     return { item, ok: false, error: error.message || 'Failed to load' };
@@ -836,6 +847,19 @@ async function loadItemData(item) {
 }
 
 // Map Binance pair to base symbol for icon lookup
+const COINGECKO_ID_MAP = {
+  btc: 'bitcoin', eth: 'ethereum', sol: 'solana', bnb: 'binancecoin',
+  xrp: 'ripple', ada: 'cardano', doge: 'dogecoin', dot: 'polkadot',
+  avax: 'avalanche-2', matic: 'matic-network', link: 'chainlink', uni: 'uniswap',
+  atom: 'cosmos', ltc: 'litecoin', near: 'near', apt: 'aptos',
+  sui: 'sui', arb: 'arbitrum', op: 'optimism', fil: 'filecoin',
+  inj: 'injective-protocol', sei: 'sei-network', fet: 'fetch-ai',
+  tao: 'bittensor', jup: 'jupiter-exchange-solana', aave: 'aave', mkr: 'maker',
+  crv: 'curve-dao-token', pepe: 'pepe', shib: 'shiba-inu', wif: 'dogwifcoin',
+  bonk: 'bonk', floki: 'floki', pol: 'matic-network', render: 'render-token',
+  tia: 'celestia'
+};
+
 function binanceBaseSymbol(pair) {
   const quotes = ['USDT', 'USDC', 'BUSD', 'FDUSD', 'BTC', 'ETH'];
   const upper = pair.toUpperCase();
@@ -845,26 +869,20 @@ function binanceBaseSymbol(pair) {
   return upper.toLowerCase();
 }
 
-async function fetchBinanceItem(item) {
+function coingeckoId(symbol) {
+  return COINGECKO_ID_MAP[symbol] || symbol;
+}
+
+async function fetchBinanceItem(item, geckoMcaps = {}) {
   const symbol = resolveBinancePair(item.binanceSymbol || item.query);
   const base = binanceBaseSymbol(symbol);
 
-  // Fetch Binance ticker + CoinCap market data in parallel
-  const [binanceRes, capRes] = await Promise.all([
-    fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${encodeURIComponent(symbol)}`),
-    fetch(`https://api.coincap.io/v2/assets/${base}`).catch(() => null)
-  ]);
-
+  const binanceRes = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${encodeURIComponent(symbol)}`);
   if (!binanceRes.ok) throw new Error(`Binance error ${binanceRes.status}`);
   const data = await binanceRes.json();
 
-  let marketCap = null;
-  if (capRes?.ok) {
-    try {
-      const capData = await capRes.json();
-      marketCap = Number(capData?.data?.marketCapUsd) || null;
-    } catch {}
-  }
+  const geckoId = coingeckoId(base);
+  const marketCap = Number(geckoMcaps?.[geckoId]?.usd_market_cap) || null;
 
   return {
     ok: true,
@@ -877,7 +895,7 @@ async function fetchBinanceItem(item) {
     liquidity: null,
     volume: Number(data.quoteVolume) || null,
     iconUrl: `https://assets.coincap.io/assets/icons/${base}@2x.png`,
-    footer: marketCap ? 'Binance + CoinCap' : 'Binance'
+    footer: marketCap ? 'Binance + CoinGecko' : 'Binance'
   };
 }
 

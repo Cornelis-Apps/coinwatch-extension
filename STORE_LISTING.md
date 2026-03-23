@@ -42,7 +42,8 @@ Tip: Customise the keyboard shortcut at chrome://extensions/shortcuts
 - DexScreener — real-time DEX prices across all chains
 - DexPaprika — automatic fallback for reliability
 - Binance — major pair pricing
-- CoinCap — market cap and icons for major assets
+- CoinGecko — market cap data for major assets
+- CoinCap — token icons for major assets
 - Jupiter — Solana token metadata and holder data
 
 **Pricing**
