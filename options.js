@@ -20,7 +20,7 @@ async function load() {
   const stored = await chrome.storage.local.get(['refreshSeconds', 'theme', 'sortMode']);
   els.refreshSeconds.value = stored.refreshSeconds || 45;
   els.themeSelect.value = stored.theme || 'light';
-  els.defaultSort.value = stored.sortMode || 'manual';
+  els.defaultSort.value = stored.sortMode || 'marketCap_desc';
 
   try {
     const user = await extpay.getUser();

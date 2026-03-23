@@ -30,6 +30,7 @@ const BINANCE_PAIR_REGEX = /(USDT|USDC|BUSD|FDUSD|BTC|ETH)$/i;
 const KNOWN_MAJORS = new Set(['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'ADA', 'DOGE', 'DOT', 'AVAX', 'MATIC', 'LINK', 'UNI', 'ATOM', 'LTC', 'NEAR', 'APT', 'SUI', 'ARB', 'OP', 'FIL', 'INJ', 'TIA', 'SEI', 'RENDER', 'FET', 'TAO', 'JUP', 'POL', 'AAVE', 'MKR', 'CRV', 'PEPE', 'SHIB', 'WIF', 'BONK', 'FLOKI']);
 
 const CHAIN_LABELS = {
+  bitcoin: 'BTC',
   solana: 'Solana',
   ethereum: 'ETH',
   bsc: 'BSC',
@@ -43,12 +44,25 @@ const CHAIN_LABELS = {
   pulsechain: 'PLS',
   sui: 'SUI',
   ton: 'TON',
-  tron: 'TRON'
+  tron: 'TRON',
+  cardano: 'ADA',
+  dogecoin: 'DOGE',
+  polkadot: 'DOT',
+  cosmos: 'ATOM',
+  litecoin: 'LTC',
+  near: 'NEAR',
+  aptos: 'APT',
+  filecoin: 'FIL',
+  xrp: 'XRP',
+  sei: 'SEI',
+  injective: 'INJ',
+  celestia: 'TIA',
+  bittensor: 'TAO'
 };
 
 const state = {
   activeFilter: 'all',
-  sortMode: 'manual',
+  sortMode: 'marketCap_desc',
   items: [],
   refreshHandle: null,
   relativeTimeHandle: null,
@@ -100,7 +114,7 @@ init().catch(handleFatal);
 async function init() {
   const stored = await chrome.storage.local.get(['items', 'refreshSeconds', 'sortMode', 'theme', 'sparkData']);
   state.items = migrateItems(stored.items || []);
-  state.sortMode = stored.sortMode || 'manual';
+  state.sortMode = (stored.sortMode && stored.sortMode !== 'manual') ? stored.sortMode : 'marketCap_desc';
   await checkPro();
   els.sortSelect.value = state.sortMode;
   state.sparkData = stored.sparkData || {};
@@ -275,7 +289,11 @@ function wireUi() {
     await refreshAll();
   });
 
-  els.refreshBtn.addEventListener('click', () => refreshAll());
+  els.refreshBtn.addEventListener('click', () => {
+    if (Date.now() - (state.lastManualRefresh || 0) < 5000) return;
+    state.lastManualRefresh = Date.now();
+    refreshAll();
+  });
 
   // Keyboard shortcuts
   let focusedRowIndex = -1;
@@ -895,7 +913,7 @@ async function fetchBinanceItem(item, geckoMcaps = {}) {
     liquidity: null,
     volume: Number(data.quoteVolume) || null,
     iconUrl: `https://assets.coincap.io/assets/icons/${base}@2x.png`,
-    footer: marketCap ? 'Binance + CoinGecko' : 'Binance'
+    footer: 'Binance'
   };
 }
 
@@ -1063,31 +1081,7 @@ function renderResults(results) {
 
     row.dataset.itemId = result.item.id;
 
-    // Drag-to-reorder (only in manual sort)
-    if (state.sortMode === 'manual') {
-      row.draggable = true;
-      row.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', result.item.id);
-        row.classList.add('dragging');
-      });
-      row.addEventListener('dragend', () => row.classList.remove('dragging'));
-      row.addEventListener('dragover', (e) => { e.preventDefault(); row.classList.add('drag-over'); });
-      row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
-      row.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        row.classList.remove('drag-over');
-        const draggedId = e.dataTransfer.getData('text/plain');
-        const targetId = result.item.id;
-        if (draggedId === targetId) return;
-        const fromIdx = state.items.findIndex((i) => i.id === draggedId);
-        const toIdx = state.items.findIndex((i) => i.id === targetId);
-        if (fromIdx < 0 || toIdx < 0) return;
-        const [moved] = state.items.splice(fromIdx, 1);
-        state.items.splice(toIdx, 0, moved);
-        await persistItems();
-        renderResults(state.latestResults);
-      });
-    }
+
 
     const alertBtn = fragment.querySelector('.alert-btn');
     alertBtn.dataset.id = result.item.id;
@@ -1171,8 +1165,23 @@ function renderResults(results) {
   loadAndRenderAlerts();
 }
 
+const BINANCE_CHAIN_MAP = {
+  btc: 'bitcoin', eth: 'ethereum', sol: 'solana', bnb: 'bsc',
+  xrp: 'xrp', ada: 'cardano', doge: 'dogecoin', dot: 'polkadot',
+  avax: 'avalanche', matic: 'polygon', link: 'ethereum', uni: 'ethereum',
+  atom: 'cosmos', ltc: 'litecoin', near: 'near', apt: 'aptos',
+  sui: 'sui', arb: 'arbitrum', op: 'optimism', fil: 'filecoin',
+  inj: 'injective', sei: 'sei', fet: 'ethereum', tao: 'bittensor',
+  jup: 'solana', aave: 'ethereum', mkr: 'ethereum', crv: 'ethereum',
+  pepe: 'ethereum', shib: 'ethereum', wif: 'solana', bonk: 'solana',
+  floki: 'ethereum', pol: 'polygon', render: 'solana', tia: 'celestia'
+};
+
 function getChainKey(row) {
-  if (row.item.type === 'binance') return 'binance';
+  if (row.item.type === 'binance') {
+    const base = (row.item.binanceSymbol || row.item.query || '').replace(/(USDT|USDC|BUSD|FDUSD|BTC|ETH)$/i, '').toLowerCase();
+    return BINANCE_CHAIN_MAP[base] || 'unknown';
+  }
   return row.chainId || row.item.chainId || 'unknown';
 }
 
@@ -1186,6 +1195,7 @@ function rebuildChainFilters(viewFiltered) {
   const counts = {};
   for (const row of viewFiltered) {
     const key = getChainKey(row);
+    if (!key) continue;
     counts[key] = (counts[key] || 0) + 1;
   }
   const chains = Object.keys(counts);

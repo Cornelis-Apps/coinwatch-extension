@@ -495,13 +495,6 @@ label,
   border-bottom: none;
 }
 
-.coin-row.dragging {
-  opacity: 0.4;
-}
-
-.coin-row.drag-over {
-  border-top: 2px solid var(--accent);
-}
 
 .row-main {
   display: grid;
