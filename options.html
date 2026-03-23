@@ -1,0 +1,240 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>CoinWatch Settings</title>
+    <style>
+      :root {
+        --bg: #f7f7f5;
+        --surface: #ffffff;
+        --line: #e7e5df;
+        --line-strong: #d7d3ca;
+        --text: #1f1f1c;
+        --muted: #6f6a61;
+        --positive: #118a4f;
+        --accent: #1f1f1c;
+      }
+
+      [data-theme="dark"] {
+        --bg: #121212;
+        --surface: #1a1a1a;
+        --line: #2e2e2e;
+        --line-strong: #3a3a3a;
+        --text: #e8e6e1;
+        --muted: #9a9590;
+        --positive: #2ecc71;
+        --accent: #e8e6e1;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+        font-size: 13px;
+        -webkit-font-smoothing: antialiased;
+        max-width: 480px;
+      }
+
+      h1 { font-size: 18px; font-weight: 650; margin: 0 0 20px; }
+      h2 { font-size: 14px; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+
+      .setting-group {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+
+      .setting-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+      }
+
+      .setting-row + .setting-row {
+        border-top: 1px solid var(--line);
+      }
+
+      .setting-label {
+        font-weight: 500;
+      }
+
+      .setting-hint {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      input[type="number"], select {
+        border: 1px solid var(--line-strong);
+        border-radius: 6px;
+        padding: 6px 8px;
+        font-size: 12px;
+        background: var(--surface);
+        color: var(--text);
+        outline: none;
+        width: 80px;
+      }
+
+      input:focus, select:focus { border-color: var(--text); }
+
+      .save-btn {
+        appearance: none;
+        border: none;
+        background: var(--accent);
+        color: var(--bg);
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        margin-top: 16px;
+      }
+
+      .save-btn:hover { opacity: 0.9; }
+
+      .saved-msg {
+        display: inline-block;
+        margin-left: 10px;
+        color: var(--positive);
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 200ms;
+      }
+
+      .saved-msg.show { opacity: 1; }
+
+      .pro-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 600;
+      }
+
+      .pro-badge.free { background: var(--line); color: var(--muted); }
+      .pro-badge.pro { background: var(--positive); color: white; }
+
+      .danger-btn {
+        appearance: none;
+        border: 1px solid #e74c3c;
+        background: transparent;
+        color: #e74c3c;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        cursor: pointer;
+      }
+
+      .danger-btn:hover { background: #fef2f1; }
+
+      .action-btn {
+        appearance: none;
+        border: 1px solid var(--line-strong);
+        background: var(--surface);
+        color: var(--text);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        cursor: pointer;
+      }
+
+      .action-btn:hover { background: var(--line); }
+    </style>
+  </head>
+  <body>
+    <h1>CoinWatch Settings</h1>
+
+    <div class="setting-group">
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Refresh interval</div>
+          <div class="setting-hint">How often prices update (seconds)</div>
+        </div>
+        <input type="number" id="refreshSeconds" min="15" max="300" value="45" />
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Default theme</div>
+        </div>
+        <select id="themeSelect">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Default sort</div>
+        </div>
+        <select id="defaultSort">
+          <option value="manual">Pinned</option>
+          <option value="change24h_desc">24h top</option>
+          <option value="change24h_abs">Movers</option>
+          <option value="recent">Recent</option>
+          <option value="marketCap_desc">Mcap</option>
+          <option value="label_asc">A–Z</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Plan</div>
+          <div class="setting-hint">Free: up to 5 tokens. Pro: up to 30.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="planBadge" class="pro-badge free">Free</span>
+          <button class="action-btn" id="upgradeBtn">Upgrade — $1.99/mo</button>
+          <button class="action-btn" id="manageBtn" style="display:none">Manage</button>
+        </div>
+      </div>
+    </div>
+
+    <h2>Data</h2>
+    <div class="setting-group">
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Export watchlist</div>
+          <div class="setting-hint">Download your watchlist as a JSON file</div>
+        </div>
+        <button class="action-btn" id="exportBtn">Export</button>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Import watchlist</div>
+          <div class="setting-hint">Merge tokens from a JSON file</div>
+        </div>
+        <button class="action-btn" id="importBtn">Import</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" />
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Clear alert history</div>
+          <div class="setting-hint">Remove all triggered alert logs</div>
+        </div>
+        <button class="danger-btn" id="clearHistory">Clear</button>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Reset all data</div>
+          <div class="setting-hint">Remove watchlist, alerts, and settings</div>
+        </div>
+        <button class="danger-btn" id="resetAll">Reset</button>
+      </div>
+    </div>
+
+    <button class="save-btn" id="saveBtn">Save settings</button>
+    <span class="saved-msg" id="savedMsg">Saved!</span>
+
+    <script src="ExtPay.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

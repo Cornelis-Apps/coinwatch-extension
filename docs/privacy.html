@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoinWatch — Privacy Policy</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #1f1f1c;
+      background: #f7f7f5;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 22px; font-weight: 700; margin: 40px 0 8px; }
+    h2 { font-size: 16px; font-weight: 650; margin: 28px 0 8px; }
+    a { color: #1f1f1c; }
+    .muted { color: #6f6a61; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e7e5df; }
+    th { font-weight: 600; }
+    .nav { margin-bottom: 32px; font-size: 13px; }
+    .nav a { margin-right: 16px; }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Service</a>
+  </div>
+
+  <h1>Privacy Policy</h1>
+  <p class="muted">Last updated: March 23, 2026</p>
+
+  <h2>Overview</h2>
+  <p>CoinWatch is a Chrome extension that lets you track cryptocurrency prices across multiple chains. Your privacy matters — this policy explains what data we handle and how.</p>
+
+  <h2>Data We Collect</h2>
+  <p><strong>We do not collect, store, or transmit any personal data.</strong> CoinWatch has no accounts, no sign-ups, and no server-side storage.</p>
+  <p>All user data — your watchlist, alerts, preferences, and settings — is stored <strong>locally on your device</strong> using Chrome's built-in storage (<code>chrome.storage.local</code>). This data never leaves your browser.</p>
+
+  <h2>Third-Party APIs</h2>
+  <p>CoinWatch fetches publicly available cryptocurrency market data from the following services:</p>
+  <table>
+    <tr><th>Service</th><th>Purpose</th></tr>
+    <tr><td>DexScreener</td><td>Token prices, market cap, liquidity, and pair data</td></tr>
+    <tr><td>DexPaprika</td><td>Fallback pricing data when DexScreener is unavailable</td></tr>
+    <tr><td>Binance</td><td>Ticker prices and 24h change for major pairs</td></tr>
+    <tr><td>CoinCap</td><td>Market cap and token icons for major assets</td></tr>
+    <tr><td>Jupiter</td><td>Solana token metadata (optional enrichment)</td></tr>
+  </table>
+  <p>These requests contain only <strong>public token identifiers</strong> (contract addresses, trading pair symbols). No personal information, browsing history, or user identifiers are sent.</p>
+
+  <h2>Payments</h2>
+  <p>Pro subscriptions are processed by <a href="https://extensionpay.com" target="_blank" rel="noopener">ExtensionPay</a>, which uses Stripe. We do not see, store, or have access to your payment details. Payment data is handled entirely by Stripe under their <a href="https://stripe.com/privacy" target="_blank" rel="noopener">privacy policy</a>.</p>
+
+  <h2>Permissions</h2>
+  <table>
+    <tr><th>Permission</th><th>Purpose</th></tr>
+    <tr><td><code>storage</code></td><td>Save your watchlist, alerts, and settings locally</td></tr>
+    <tr><td><code>alarms</code></td><td>Schedule periodic price refreshes and alert checks</td></tr>
+    <tr><td><code>notifications</code></td><td>Display Chrome notifications when alerts trigger</td></tr>
+    <tr><td><code>activeTab</code></td><td>Show feedback when adding tokens via right-click menu</td></tr>
+    <tr><td><code>contextMenus</code></td><td>Provide "Add to CoinWatch" right-click option</td></tr>
+    <tr><td><code>scripting</code></td><td>Inject feedback toasts on the active tab</td></tr>
+    <tr><td>Host permissions</td><td>Fetch market data from the APIs listed above</td></tr>
+  </table>
+
+  <h2>Content Scripts</h2>
+  <p>CoinWatch injects a small content script on supported chart websites (DexScreener, Birdeye, GeckoTerminal, DEXTools, GMGN, Defined) to provide an "Add to CoinWatch" button. This script:</p>
+  <ul>
+    <li>Only reads the current page URL to extract token/pair identifiers</li>
+    <li>Does not read page content, form data, or cookies</li>
+    <li>Does not modify any page content beyond adding the floating button</li>
+    <li>Does not track your browsing activity</li>
+  </ul>
+
+  <h2>Data Sharing</h2>
+  <p>We do not sell, share, or transfer any data to third parties. We do not use analytics, tracking pixels, or advertising SDKs.</p>
+
+  <h2>Data Retention</h2>
+  <p>All data is stored locally on your device. You can clear all CoinWatch data at any time via Settings ("Reset all data") or by removing the extension.</p>
+
+  <h2>Changes</h2>
+  <p>If we update this policy, the changes will be reflected here with an updated date.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy: <a href="mailto:cornelis.apps@gmail.com">cornelis.apps@gmail.com</a></p>
+
+  <p class="muted" style="margin-top: 32px;">CoinWatch is an independent project and is not affiliated with DexScreener, Binance, Jupiter, CoinCap, or DexPaprika.</p>
+</body>
+</html>

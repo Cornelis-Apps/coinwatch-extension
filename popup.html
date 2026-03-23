@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CoinWatch</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="app-shell" role="application">
+      <header class="topbar">
+        <div class="brand-block">
+          <img src="icons/icon128.png" alt="" class="brand-icon" />
+          <h1>CoinWatch</h1>
+        </div>
+        <div class="topbar-actions">
+          <div class="status-inline"><span class="status-dot"></span><span id="statusBadge">Idle</span></div>
+          <span class="meta-updated muted" id="lastUpdated"></span>
+          <button id="historyToggle" class="ghost-btn icon-btn" title="Alert history" aria-label="Alert history">🕓</button>
+          <button id="themeToggle" class="ghost-btn icon-btn" title="Toggle theme" aria-label="Toggle theme">◑</button>
+          <button id="refreshBtn" class="ghost-btn icon-btn" title="Refresh now" aria-label="Refresh now">↻</button>
+          <button id="settingsBtn" class="ghost-btn icon-btn" title="Settings" aria-label="Settings">⚙</button>
+          <button id="composerToggle" class="ghost-btn icon-btn" title="Add asset" aria-label="Add asset">+</button>
+        </div>
+      </header>
+
+      <section class="composer hidden" id="composerSection">
+        <form id="addForm" class="add-form">
+          <div class="line-input-wrap">
+            <input id="queryInput" type="text" placeholder="Paste mint, symbol, or pair (e.g. BTCUSDT)" required />
+          </div>
+
+          <div class="inline-fields">
+            <div class="line-input-wrap compact-field">
+              <label for="labelInput">Label</label>
+              <input id="labelInput" type="text" maxlength="24" placeholder="Optional" />
+            </div>
+          </div>
+
+          <div id="resolvedPreview" class="resolved-preview hidden" aria-live="polite"></div>
+          <div id="formFeedback" class="form-feedback hidden" aria-live="polite"></div>
+
+          <div class="form-actions">
+            <button type="submit" class="primary-btn">Add to watchlist</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="controls-bar">
+        <div class="filter-row" id="filterTabs">
+          <button class="filter-chip active" data-filter="all">All</button>
+          <button class="filter-chip" data-filter="favorites">Favorites</button>
+          <button class="filter-chip" data-filter="alerts">Alerts</button>
+        </div>
+        <div class="chain-filter-row hidden" id="chainFilterRow"></div>
+        <div class="sort-row">
+          <label for="sortSelect">Sort</label>
+          <select id="sortSelect">
+            <option value="manual">Pinned</option>
+            <option value="change24h_desc">24h top</option>
+            <option value="change24h_abs">Movers</option>
+            <option value="recent">Recent</option>
+            <option value="marketCap_desc">Mcap</option>
+            <option value="label_asc">A–Z</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="list-shell">
+        <div class="list-topbar">
+          <h2>Watchlist</h2>
+          <div class="list-topbar-right">
+            <input id="searchInput" type="text" class="search-input" placeholder="Search…" />
+            <span id="tierBadge" class="tier-badge">Free</span>
+            <span id="assetCount" class="count-badge">0 assets</span>
+          </div>
+        </div>
+
+        <div class="table-head" aria-hidden="true">
+          <span>Asset</span>
+          <span class="col-toggle" id="colToggle" title="Click to switch column">Mcap (USD)</span>
+          <span>24h</span>
+          <span>Price (USD)</span>
+        </div>
+
+        <div id="coinList" class="coin-list"></div>
+      </section>
+
+      <section class="history-panel hidden" id="historyPanel">
+        <div class="list-topbar">
+          <h2>Alert History</h2>
+          <button id="historyClose" class="ghost-btn icon-btn" title="Close">✕</button>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </section>
+
+      <footer class="app-footer">
+        <span>Feedback? <a href="mailto:cornelis.apps@gmail.com">cornelis.apps@gmail.com</a></span>
+        <span class="muted">·</span>
+        <span>Prices are informational only — not financial advice.</span>
+      </footer>
+    </div>
+
+    <input type="file" id="importFile" accept=".json" class="hidden" />
+
+    <template id="coinRowTemplate">
+      <article class="coin-row">
+        <div class="row-main">
+          <div class="asset-cell">
+            <div class="asset-title-line">
+              <img class="coin-icon" src="" alt="" />
+              <span class="coin-label"></span>
+              <span class="coin-symbol"></span>
+              <span class="source-badge"></span>
+            </div>
+            <div class="asset-subline">
+              <span class="coin-id muted"></span>
+              <span class="dot-sep">•</span>
+              <span class="coin-source muted"></span>
+            </div>
+          </div>
+
+          <div class="metric-cell metric-mcap"></div>
+          <div class="metric-cell metric-change"></div>
+          <div class="metric-cell metric-price"></div>
+        </div>
+
+        <div class="alert-pills"></div>
+
+        <div class="alert-composer hidden">
+          <div class="alert-composer-row">
+            <select class="alert-metric">
+              <option value="marketCap">Mcap</option>
+              <option value="price">Price</option>
+              <option value="change24h">24h %</option>
+            </select>
+            <select class="alert-condition">
+              <option value="above">above</option>
+              <option value="below">below</option>
+            </select>
+            <input class="alert-value" type="text" inputmode="decimal" placeholder="e.g. 1M, 70K" />
+            <button class="alert-save-btn" title="Save alert">✓</button>
+            <button class="alert-cancel-btn" title="Cancel">✕</button>
+          </div>
+          <div class="alert-quick-row">
+            <button class="alert-quick" data-mult="2">2x</button>
+            <button class="alert-quick" data-mult="5">5x</button>
+            <button class="alert-quick" data-mult="10">10x</button>
+            <button class="alert-quick" data-mult="0.5">½</button>
+            <span class="alert-current-hint"></span>
+          </div>
+        </div>
+
+        <div class="row-secondary">
+          <div class="secondary-line coin-footer muted"></div>
+          <div class="secondary-right">
+            <span class="liq-inline"><span class="muted">Liq</span> <strong class="metric-liq">—</strong></span>
+            <div class="coin-actions">
+              <a class="chart-link hidden" title="Open chart" aria-label="Open chart" target="_blank" rel="noopener">↗</a>
+              <button class="icon-action alert-btn" title="Set alert" aria-label="Set alert">🔔</button>
+              <button class="icon-action star-btn" title="Toggle favorite" aria-label="Toggle favorite">☆</button>
+              <button class="icon-action copy-btn" title="Copy identifier" aria-label="Copy identifier">⧉</button>
+              <button class="icon-action remove-btn" title="Remove" aria-label="Remove asset">✕</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script src="ExtPay.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
