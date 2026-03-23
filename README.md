@@ -74,17 +74,4 @@ Select any contract address on any webpage, right-click, and choose "Add to Coin
 
 ---
 
-## Design Philosophy
-
-CoinWatch follows a **"Calm Workspace"** design:
-
-- Information-first, not decoration
-- Dense, scannable rows for fast decision-making
-- Neutral tones, minimal color
-- Built to feel like a **tool**, not an app
-
----
-
-## Positioning
-
 > Track any token, any chain, one popup. The fastest way to watch crypto.
