@@ -88,7 +88,7 @@ els.importFile.addEventListener('change', async (e) => {
         (item.type === 'dex' && existing.type === 'dex' && (existing.address || '').toLowerCase() === (item.address || '').toLowerCase())
       );
       if (!exists) {
-        if (!isPro && items.length >= 5) break;
+        if (!isPro && items.length >= 10) break;
         if (isPro && items.length >= 30) break;
         items.push(item);
         added++;

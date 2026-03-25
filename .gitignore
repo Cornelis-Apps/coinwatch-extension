@@ -3,5 +3,5 @@
 *.log
 node_modules/
 .claude/
-.misc/
+misc/
 *.zip

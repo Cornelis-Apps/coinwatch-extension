@@ -30,7 +30,7 @@ No accounts. No dashboards. No clutter. Just signal.
 - **Keyboard shortcuts** — navigate, search, and manage your list without clicking
 - **Import/Export** — backup and restore your watchlist as JSON
 - **Light & dark themes**
-- **Freemium** — 5 tokens free, up to 30 with Pro ($1.99/mo)
+- **Freemium** — 10 tokens free, up to 30 with Pro ($1.99/mo)
 
 ---
 
@@ -46,6 +46,10 @@ No accounts. No dashboards. No clutter. Just signal.
 ---
 
 ## Installation
+
+**[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/coinwatch/fabeooendhnnkmjmkmfaibdoimkmkmja)**
+
+### Manual (Developer mode)
 
 1. Download and unzip the extension
 2. Open `chrome://extensions`

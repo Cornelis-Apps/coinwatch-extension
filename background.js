@@ -345,8 +345,8 @@ async function handleAddToWatchlist(token) {
     const { items = [] } = await chrome.storage.local.get(['items']);
     let isPro = false;
     try { const user = await extpay.getUser(); isPro = !!user.paid; } catch {}
-    if (!isPro && items.length >= 5) {
-      return { success: false, error: 'Free tier limit reached (5 tokens). Upgrade to CoinWatch Pro for unlimited tracking.' };
+    if (!isPro && items.length >= 10) {
+      return { success: false, error: 'Free tier limit reached (10 tokens). Upgrade to CoinWatch Pro for unlimited tracking.' };
     }
     if (isPro && items.length >= 30) {
       return { success: false, error: 'Pro watchlist limit reached (30 tokens).' };

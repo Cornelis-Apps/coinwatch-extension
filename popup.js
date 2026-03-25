@@ -1,7 +1,7 @@
 const extpay = ExtPay('coinwatch');
 
 const DEFAULT_REFRESH_MS = 45_000;
-const FREE_TIER_LIMIT = 5;
+const FREE_TIER_LIMIT = 10;
 const PRO_TIER_LIMIT = 30;
 const PRO_CACHE_TTL = 60_000; // 60s cache for ExtPay status
 
